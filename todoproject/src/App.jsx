@@ -1,118 +1,66 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState, useEffect } from 'react'
+import {TodoProvider} from './contexts'
 import './App.css'
-import { Todoprovider } from './contexts'
+import TodoForm from './components/TodoForm'
+import TodoItem from './components/TodoItem'
 
 function App() {
-  const [todos, settodos] = useState([])
-  const addtodo=(todo)=>{
-    settodos((prev)=>[...prev, {id:Date.now(),...todo}] )
+  const [todos, setTodos] = useState([])
+
+  const addTodo = (todo) => {
+    setTodos((prev) => [{id: Date.now(), ...todo}, ...prev] )
   }
 
-  const updatetodo=(id,todo)=>{
-    settodos((prev)=>prev.map( ))
+  const updateTodo = (id, todo) => {
+    setTodos((prev) => prev.map((prevTodo) => (prevTodo.id === id ? todo : prevTodo )))
+
+    
   }
 
+  const deleteTodo = (id) => {
+    setTodos((prev) => prev.filter((todo) => todo.id !== id))
+  }
+
+  const toggleComplete = (id) => {
+    //console.log(id);
+    setTodos((prev) => 
+    prev.map((prevTodo) => 
+      prevTodo.id === id ? { ...prevTodo, 
+        completed: !prevTodo.completed } : prevTodo))
+  }
+  useEffect(() => {
+    const todos = JSON.parse(localStorage.getItem("todos"))
+    if (todos && todos.length > 0) {
+      setTodos(todos)
+    }
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos))
+  }, [todos])
   return (
-    <Todoprovider value={{todos,addtodo,updatetodo,deletetodo,togglecomplete}}>
-     <div className=" bg-blue-950 text-white-500 w-screen h-screen py-7">
-    <h1 className='text-4xl py-12 '>Manage your Todos</h1>        
-    
-    
-    <form className='flex justify-center'>
-    <input
-                type="text"
-                placeholder="Write Todo..."
-                className="w-96 border border-black/10 rounded-l-lg px-10 outline-none duration-150 bg-white/20 py-1.5 p"
-            />
-
-      <button type="submit" className="rounded-r-lg px-3 py-1 bg-green-600 text-white shrink-0">
-                Add
-      </button>
-
-    </form>
-
-    <br/>
-
-    <form className='flex justify-center'>
-    <input
-    type='checkbox'
-    
-    />
-
-      <input
-      type='text'
-      placeholder='Learn Something New'
-      className='w-96 rounded-lg bg-yellow-200 text-orange-600 line-through '/>
-
-<button
-                className="inline-flex w-8 h-8 rounded-lg text-sm border border-black/10 justify-center items-center bg-gray-50 hover:bg-gray-100 shrink-0 disabled:opacity-50"
-                > 
-                📁</button>
-
-      <button
-                className="inline-flex w-8 h-8 rounded-lg text-sm border border-black/10 justify-center items-center bg-gray-50 hover:bg-gray-100 shrink-0"
+    <TodoProvider value={{todos, addTodo, updateTodo, deleteTodo, toggleComplete}}>
+      <div className="bg-[#172842] min-h-screen py-8">
+                <div className="w-full max-w-2xl mx-auto shadow-md rounded-lg px-4 py-3 text-white">
+                    <h1 className="text-2xl font-bold text-center mb-8 mt-2">Manage Your Todos</h1>
+                    <div className="mb-4">
+                        {/* Todo form goes here */} 
+                        <TodoForm />
+                    </div>
+                    <div className="flex flex-wrap gap-y-3">
+                        {/*Loop and Add TodoItem here */}
+                        {todos.map((todo) => (
+                          <div key={todo.id}
+                          className='w-full'
+                          >
+                          <TodoItem todo={todo} />
+                          </div>
+                        ))}
+                    </div>
+                </div>
                 
-            >
-                ❌
-            </button>
-
-    </form>
-    <br/>
-
-    <form className='flex justify-center'>
-    <input
-    type='checkbox'
-    
-    />
-
-      <input
-      type='text'
-      placeholder='Learn Something New'
-      className='w-96 rounded-lg bg-yellow-200 text-orange-600 line-through'/>
-      <button
-                className="inline-flex w-8 h-8 rounded-lg text-sm border border-black/10 justify-center items-center bg-gray-50 hover:bg-gray-100 shrink-0 disabled:opacity-50"
-                > 
-                📁</button>
-      <button
-                className="inline-flex w-8 h-8 rounded-lg text-sm border border-black/10 justify-center items-center bg-gray-50 hover:bg-gray-100 shrink-0"
-                
-            >
-                ❌
-            </button>
-
-    </form>
-
-    <br/>
-
-    <form className='flex justify-center'>
-    <input
-    type='checkbox'
-    
-    />
-
-      <input
-      type='text'
-      placeholder='Learn Something New'
-      className='w-96 rounded-lg bg-yellow-200 text-orange-600  '/>
-
-<button
-                className="inline-flex w-8 h-8 rounded-lg text-sm border border-black/10 justify-center items-center bg-gray-50 hover:bg-gray-100 shrink-0 disabled:opacity-50"
-                > 
-                📁</button>
-
-<button
-                className="inline-flex w-8 h-8 rounded-lg text-sm border border-black/10 justify-center items-center bg-gray-50 hover:bg-gray-100 shrink-0"
-                
-            >
-                ❌
-            </button>
-
-    </form>
-</div>
-    </Todoprovider>
-
+            </div>
+    </TodoProvider>
   )
 }
 
